@@ -37,10 +37,7 @@ def _playlist_audio_data(playlist_title):
         if artist_name not in data:
             data[artist_name] = {}
         for item in playlist.items():
-            if (
-                type(item).__name__ == "Track"
-                and item.grandparentTitle.strip() == artist_name
-            ):
+            if type(item).__name__ == "Track" and item.grandparentTitle.strip() == artist_name:
                 album_title = item.parentTitle.strip()
                 if album_title not in data[artist_name]:
                     data[artist_name][album_title] = []
@@ -104,9 +101,7 @@ def _playlist_video_data(playlist_title):
 
                 episode_title = item.title.strip()
                 episode_number = item.index
-                data[item_type][title][season_title].append(
-                    [episode_title, episode_number]
-                )
+                data[item_type][title][season_title].append([episode_title, episode_number])
 
             elif item_type == "Movie" and item.title.strip() == title:
                 movie_year = item.year
@@ -148,3 +143,13 @@ def playlist_details(playlist_type, playlist_title):
     if playlist_type == "photo":
         return _playlist_photo_details(playlist_title)
     return None
+
+
+def get_playlist_data():
+    playlist_data = {}
+    playlists = plex_server.playlists()
+    for playlist in playlists:
+        if playlist.playlistType == "audio":
+            playlist_data[playlist] = playlist.items()
+
+    return playlist_data

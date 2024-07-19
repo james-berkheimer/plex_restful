@@ -1,10 +1,9 @@
 from flask import Blueprint, jsonify, request
 
 from ..plex.server import get_server
-from .models import Playlist, db
+from .models import Playlist, PlaylistType, Track
 
 plex_server = get_server()
-
 
 api_bp = Blueprint("api", __name__)
 
@@ -14,7 +13,11 @@ api_bp = Blueprint("api", __name__)
 def get_playlists():
     playlist_type = request.args.get("type")
     if playlist_type:
-        playlists = Playlist.query.filter_by(playlist_type=playlist_type).all()
+        playlists = (
+            Playlist.query.join(PlaylistType)
+            .filter(PlaylistType.name == playlist_type)
+            .all()
+        )
     else:
         playlists = Playlist.query.all()
 
@@ -22,8 +25,9 @@ def get_playlists():
     for playlist in playlists:
         result.append(
             {
+                "id": playlist.id,
                 "title": playlist.title,
-                "playlist_type": playlist.playlist_type,
+                "playlist_type": playlist.playlist_type.name,
                 "duration": playlist.duration,
                 "thumb": playlist.thumb,
             }
@@ -32,17 +36,57 @@ def get_playlists():
     return jsonify(result)
 
 
-# Example endpoint to populate playlists from Plex
-@api_bp.route("/populate", methods=["POST"])
-def populate_playlists():
-    for plex_playlist in plex_server.playlists():
-        playlist = Playlist(
-            title=plex_playlist.title,
-            playlist_type=plex_playlist.playlistType,
-            duration=plex_playlist.duration,
-            thumb=plex_playlist.thumb,
+@api_bp.route("/tracks", methods=["GET"])
+def get_all_tracks():
+    tracks = Track.query.all()
+    result = []
+    for track in tracks:
+        playlist_titles = (
+            [playlist.title for playlist in track.playlists]
+            if track.playlists
+            else None
         )
-        db.session.add(playlist)
-    db.session.commit()
+        result.append(
+            {
+                "id": track.id,
+                "title": track.title,
+                "duration": track.duration,
+                "track_number": track.track_number,
+                "playlist_ids": [playlist.id for playlist in track.playlists],
+                "playlist_titles": playlist_titles,
+            }
+        )
+    return jsonify(result)
 
-    return jsonify({"message": "Playlists populated successfully"})
+
+@api_bp.route("/playlists/<int:playlist_id>/tracks", methods=["GET"])
+def get_playlist_tracks(playlist_id):
+    # Fetch the playlist by its ID
+    playlist = Playlist.query.get(playlist_id)
+
+    # Check if the playlist exists
+    if not playlist:
+        return jsonify({"error": "Playlist not found"}), 404
+
+    # Prepare the list of tracks
+    tracks_result = []
+    for track in playlist.tracks:
+        tracks_result.append(
+            {
+                "track_number": track.track_number,
+                "title": track.title,
+                "duration": track.duration,
+            }
+        )
+
+    # Return the tracks as a JSON response
+    return jsonify(tracks_result)
+
+
+@api_bp.route("/playlist_types", methods=["GET"])
+def get_playlist_types():
+    playlist_types = PlaylistType.query.all()
+    result = []
+    for p_type in playlist_types:
+        result.append({"id": p_type.id, "name": p_type.name})
+    return jsonify(result)

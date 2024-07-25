@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from ..plex.server import get_server
-from .models import Playlist, PlaylistType, Track
+from .database.models import Playlist, PlaylistType, Track
 
 plex_server = get_server()
 
@@ -13,11 +13,7 @@ api_bp = Blueprint("api", __name__)
 def get_playlists():
     playlist_type = request.args.get("type")
     if playlist_type:
-        playlists = (
-            Playlist.query.join(PlaylistType)
-            .filter(PlaylistType.name == playlist_type)
-            .all()
-        )
+        playlists = Playlist.query.join(PlaylistType).filter(PlaylistType.name == playlist_type).all()
     else:
         playlists = Playlist.query.all()
 
@@ -41,11 +37,7 @@ def get_all_tracks():
     tracks = Track.query.all()
     result = []
     for track in tracks:
-        playlist_titles = (
-            [playlist.title for playlist in track.playlists]
-            if track.playlists
-            else None
-        )
+        playlist_titles = [playlist.title for playlist in track.playlists] if track.playlists else None
         result.append(
             {
                 "id": track.id,

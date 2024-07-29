@@ -41,3 +41,47 @@ album_artist = db.Table(
     db.Column("album_id", db.Integer, db.ForeignKey("albums.id"), primary_key=True),
     db.Column("artist_id", db.Integer, db.ForeignKey("artists.id"), primary_key=True),
 )
+
+# Define the association table between playlists and episodes
+playlist_episode = db.Table(
+    "playlist_episode",
+    db.Column("playlist_id", db.Integer, db.ForeignKey("playlists.id"), primary_key=True),
+    db.Column("episode_id", db.Integer, db.ForeignKey("episodes.id"), primary_key=True),
+)
+
+playlist_season = db.Table(
+    "playlist_season",
+    db.Column("playlist_id", db.Integer, db.ForeignKey("playlists.id"), primary_key=True),
+    db.Column("season_id", db.Integer, db.ForeignKey("seasons.id"), primary_key=True),
+)
+
+playlist_show = db.Table(
+    "playlist_show",
+    db.Column("playlist_id", db.Integer, db.ForeignKey("playlists.id"), primary_key=True),
+    db.Column("show_id", db.Integer, db.ForeignKey("shows.id"), primary_key=True),
+)
+
+episode_season = db.Table(
+    "episode_season",
+    db.Column("episode_id", db.Integer, db.ForeignKey("episodes.id"), primary_key=True),
+    db.Column("season_id", db.Integer, db.ForeignKey("seasons.id"), primary_key=True),
+)
+
+episode_show = db.Table(
+    "episode_show",
+    db.Column("episode_id", db.Integer, db.ForeignKey("episodes.id"), primary_key=True),
+    db.Column("show_id", db.Integer, db.ForeignKey("shows.id"), primary_key=True),
+)
+
+playlist_movie = db.Table(
+    "playlist_movie",
+    db.Column("playlist_id", db.Integer, db.ForeignKey("playlists.id"), primary_key=True),
+    db.Column("movie_id", db.Integer, db.ForeignKey("movies.id"), primary_key=True),
+)
+
+
+playlist_photo = db.Table(
+    "playlist_photo",
+    db.Column("playlist_id", db.Integer, db.ForeignKey("playlists.id"), primary_key=True),
+    db.Column("photo_id", db.Integer, db.ForeignKey("photos.id"), primary_key=True),
+)

@@ -42,6 +42,10 @@ content-type = "text/markdown"
 
 [project.scripts]
 pra = "plex_restful.main:main"
+test1 = "plex_restful.test:test1"
+test2 = "plex_restful.test:test2"
+test3 = "plex_restful.test:test3"
+test4 = "plex_restful.test:test4"
 
 [project.urls]
 homepage = "https://example.com"

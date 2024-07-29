@@ -1,5 +1,12 @@
 from ...extensions import db
-from .associations import playlist_album, playlist_artist, playlist_track
+from .associations import (
+    playlist_album,
+    playlist_artist,
+    playlist_episode,
+    playlist_season,
+    playlist_show,
+    playlist_track,
+)
 
 
 class PlaylistType(db.Model):
@@ -36,6 +43,16 @@ class Playlist(db.Model):
     artists = db.relationship(
         "Artist", secondary=playlist_artist, back_populates="playlists", lazy="dynamic"
     )
+
+    episodes = db.relationship(
+        "Episode", secondary=playlist_episode, back_populates="playlists", lazy="dynamic"
+    )
+
+    seasons = db.relationship(
+        "Season", secondary=playlist_season, back_populates="playlists", lazy="dynamic"
+    )
+
+    shows = db.relationship("Show", secondary=playlist_show, back_populates="playlists", lazy="dynamic")
 
     def __repr__(self):
         playlist_type_name = self.playlist_type.name if self.playlist_type else "None"

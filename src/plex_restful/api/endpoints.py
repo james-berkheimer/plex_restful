@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from ..plex.server import get_server
-from .database.models import Playlist, PlaylistType, Track
+from .database.models import Playlist, Track
 
 plex_server = get_server()
 
@@ -13,7 +13,7 @@ api_bp = Blueprint("api", __name__)
 def get_playlists():
     playlist_type = request.args.get("type")
     if playlist_type:
-        playlists = Playlist.query.join(PlaylistType).filter(PlaylistType.name == playlist_type).all()
+        playlists = Playlist.query.filter_by(section_type=playlist_type).all()
     else:
         playlists = Playlist.query.all()
 
@@ -23,9 +23,9 @@ def get_playlists():
             {
                 "id": playlist.id,
                 "title": playlist.title,
-                "playlist_type": playlist.playlist_type.name,
+                "playlist_type": playlist.section_type,
                 "duration": playlist.duration,
-                "thumb": playlist.thumb,
+                "thumb": playlist.thumbnail,
             }
         )
 
@@ -77,7 +77,7 @@ def get_playlist_tracks(playlist_id):
 
 @api_bp.route("/playlist_types", methods=["GET"])
 def get_playlist_types():
-    playlist_types = PlaylistType.query.all()
+    playlist_types = Playlist.query.with_entities(Playlist.section_type).distinct()
     result = []
     for p_type in playlist_types:
         result.append({"id": p_type.id, "name": p_type.name})

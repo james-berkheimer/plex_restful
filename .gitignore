@@ -137,3 +137,6 @@ credentials.json
 
 # cahce file
 *.db
+
+# Ignore _archive folder
+_archive/

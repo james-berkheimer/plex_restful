@@ -4,8 +4,16 @@ from ..plex.server import get_server
 
 plex_server = get_server()
 
+"""
+days = playlist.duration // (24 * 3600 * 1000)
+hours = (playlist.duration % (24 * 3600 * 1000)) // (3600 * 1000)
+minutes = (playlist.duration % (3600 * 1000)) // 60000
+seconds = (playlist.duration % 60000) // 1000
+details_dict["duration"] = f"{days}:{hours}:{minutes}:{seconds}"
+"""
 
-def categorized_playlists():
+
+def _get_categorized_playlists():
     playlists = plex_server.playlists()
     try:
         categorized_playlists = {"audio": [], "video": [], "photo": []}
@@ -45,29 +53,6 @@ def _playlist_audio_data(playlist_title):
                 track_number = item.trackNumber
                 data[artist_name][album_title].append([track_title, track_number])
     return data
-
-
-def _playlist_audio_details(playlist_title):
-    details_dict = {}
-    playlist = plex_server.playlist(playlist_title)
-    details_dict["title"] = playlist.title
-    details_dict["total_items"] = len(playlist.items())
-
-    days = playlist.duration // (24 * 3600 * 1000)
-    hours = (playlist.duration % (24 * 3600 * 1000)) // (3600 * 1000)
-    minutes = (playlist.duration % (3600 * 1000)) // 60000
-    seconds = (playlist.duration % 60000) // 1000
-    details_dict["duration"] = f"{days}:{hours}:{minutes}:{seconds}"
-
-    return details_dict
-
-
-def _playlist_photo_details(playlist_title):
-    pass
-
-
-def _playlist_video_details(playlist_title):
-    pass
 
 
 def _get_sorted_titles(playlist_items):
@@ -132,16 +117,6 @@ def playlist_data(playlist_type, playlist_title):
         return _playlist_video_data(playlist_title)
     if playlist_type == "photo":
         return _playlist_photo_data(playlist_title)
-    return None
-
-
-def playlist_details(playlist_type, playlist_title):
-    if playlist_type == "audio":
-        return _playlist_audio_details(playlist_title)
-    if playlist_type == "video":
-        return _playlist_video_details(playlist_title)
-    if playlist_type == "photo":
-        return _playlist_photo_details(playlist_title)
     return None
 
 

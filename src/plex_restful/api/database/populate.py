@@ -7,7 +7,6 @@ from .models import Episode, Movie, Photo, Playlist, Track
 
 def fetch_existing_data():
     """Fetch existing data from the database and return as dictionaries."""
-    print("Fetching existing data from the database...")
     data = {
         "playlists": {p.title: p for p in Playlist.query.all()},
         "tracks": {
@@ -137,7 +136,7 @@ def save_playlists(playlists, existing_playlists):
     playlist_instances = []
 
     for playlist in playlists:
-        print(f"Processing playlist: {playlist.title}")
+        print(f"Processing playlist: {playlist.title}\n")
         playlist_instance = create_or_update_playlist(playlist, existing_playlists)
         playlist_instances.append(playlist_instance)
 
@@ -174,6 +173,8 @@ def populate_database():
                 if item.ratingKey not in processed_items:
                     processed_items.add(item.ratingKey)
                     if playlist.playlistType == "audio":
+                        # print(f"Processing tracks for playlist: {playlist.title}")
+                        # print(f"Playlist has {len(playlist.items())} tracks.")
                         track_instance = create_or_update_track(item, existing_data["tracks"])
                         track_instances.append(track_instance)
                     elif playlist.playlistType == "video":
@@ -213,6 +214,9 @@ def populate_database():
                         playlist_instance.movies.append(movie_instance)
                 elif playlist.playlistType == "photo":
                     playlist_instance.photos.append(photo_instance)
+
+            # Add playlist instance to the session
+            db.session.add(playlist_instance)
 
         # Bulk save all instances
         print("Saving tracks.")

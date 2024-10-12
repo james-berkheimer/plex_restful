@@ -1,6 +1,8 @@
 from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.orm import sessionmaker
 
+from .api.database.models import Playlist
+
 db_path = "sqlite:///src/instance/plex_restful.db"
 # Create an engine and connect to the database
 engine = create_engine(db_path)
@@ -13,14 +15,17 @@ session = Session()
 
 def test1():
     # Reflect the tables
-    albums = Table("albums", metadata, autoload_with=engine)
+    playlists = Table("playlists", metadata, autoload_with=engine)
 
     # Query the database
-    result = session.query(albums).all()
+    result = session.query(playlists).all()
 
     # Print the results
-    for row in result:
-        print(row.title)
+    for playlist in result:
+        total_relationships = playlist.count_relationships()
+        print(
+            f"{playlist.title}: Duration: {playlist.duration} seconds, Total Relationships: {total_relationships}"
+        )
 
 
 def test2():
@@ -35,8 +40,19 @@ def test2():
 
 
 def test3():
-    pass
+    playlists = session.query(Playlist).all()
+
+    for playlist in playlists:
+        total_relationships = playlist.count_relationships()
+        print(total_relationships)
+        print(f"Tracks: {playlist.tracks.count()}")
+        print(f"{playlist.title}: Duration: {playlist.duration} seconds")
 
 
 def test4():
-    pass
+    playlist_lst = session.query(Playlist).filter(Playlist.title == "test video").all()
+    playlist = playlist_lst[0]
+    print(f"{playlist.title}: {playlist.episodes.count()} episodes")
+    items = playlist.episodes.all()
+    for item in items:
+        print(f"  {item.title}")

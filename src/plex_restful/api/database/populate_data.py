@@ -19,7 +19,7 @@ def fetch_existing_data():
 def create_or_update_playlist(playlist, existing_playlists):
     print(f"Processing playlist: {playlist.title}")
     if playlist.title not in existing_playlists:
-        print(f"Creating new playlist: {playlist.title}")
+        print(f"Creating new playlist: {playlist.title}\n")
         playlist_instance = Playlist(
             title=playlist.title,
             section_type=playlist.playlistType,
@@ -43,7 +43,7 @@ def create_or_update_track(track, existing_tracks):
     track_key = (track.title, track.trackNumber, album.title, artist.title)
     print(f"Processing track: {track.title}")
     if track_key not in existing_tracks:
-        print(f"Creating new track: {track.title}")
+        print(f"Creating new track: {track.title}\n")
         track_instance = Track(
             title=track.title,
             track_number=track.trackNumber,
@@ -70,7 +70,7 @@ def create_or_update_episode(video, existing_episodes):
     episode_key = (video.title, video.index, season.index, show.title)
     print(f"Processing episode: {video.title}")
     if episode_key not in existing_episodes:
-        print(f"Creating new episode: {video.title}")
+        print(f"Creating new episode: {video.title}\n")
         episode_instance = Episode(
             title=video.title,
             episode_number=video.index,
@@ -95,7 +95,7 @@ def create_or_update_movie(video, existing_movies):
     movie_key = (video.title, video.year)
     print(f"Processing movie: {video.title}")
     if movie_key not in existing_movies:
-        print(f"Creating new movie: {video.title}")
+        print(f"Creating new movie: {video.title}\n")
         movie_instance = Movie(
             title=video.title,
             duration=video.duration,
@@ -127,7 +127,7 @@ def create_or_update_photo(photo, existing_photos):
     photo_key = photo.title
     print(f"Processing photo: {photo.title}")
     if photo_key not in existing_photos:
-        print(f"Creating new photo: {photo.title}")
+        print(f"Creating new photo: {photo.title}\n")
         photo_instance = Photo(
             title=photo.title,
             thumbnail=photo.thumb,
@@ -159,6 +159,7 @@ def populate_database():
         plex_server = get_server()
         print("Fetching existing data...")
         existing_data = fetch_existing_data()
+        print("Debugging existing data...")
 
         playlists = []
         tracks = []
@@ -168,11 +169,17 @@ def populate_database():
 
         for playlist in plex_server.playlists():
             print(f"Processing playlist: {playlist.title}")
+            # Check if the playlist already exists
+            if any(p.title == playlist.title for p in existing_data["playlists"]):
+                print(f"Skipping duplicate playlist: {playlist.title}")
+                continue
+
             playlist_instance, is_new = create_or_update_playlist(playlist, existing_data["playlists"])
-            if is_new:
-                playlists.append(playlist_instance)
+            playlists.append(playlist_instance)  # Add the playlist to the list
 
             if playlist.playlistType == "audio":
+                print(f"Processing tracks for playlist: {playlist.title}")
+                print(f"Playlist has {len(playlist.items())} tracks.")
                 handle_associations(
                     playlist_instance,
                     playlist.items(),

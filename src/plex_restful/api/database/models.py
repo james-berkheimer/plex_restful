@@ -1,10 +1,10 @@
 from typing import List, Optional
 
-from sqlalchemy import DateTime, Integer, String, UniqueConstraint, func
+from sqlalchemy import DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..extensions import db
-from .associations import playlist_episode, playlist_movie, playlist_photo, playlist_track
+from .tables import playlist_episode, playlist_movie, playlist_photo, playlist_track
 
 
 class Playlist(db.Model):
@@ -37,6 +37,9 @@ class Playlist(db.Model):
         "Photo", secondary=playlist_photo, back_populates="playlists", lazy="dynamic"
     )
 
+    def count_relationships(self):
+        return self.tracks.count() + self.episodes.count() + self.movies.count() + self.photos.count()
+
 
 class Track(db.Model):
     __tablename__ = "tracks"
@@ -59,10 +62,6 @@ class Track(db.Model):
 
     playlists: Mapped[List["Playlist"]] = relationship(
         "Playlist", secondary=playlist_track, back_populates="tracks", lazy="dynamic"
-    )
-
-    __table_args__ = (
-        UniqueConstraint("title", "track_number", "album_title", "artist_name", name="_track_uc"),
     )
 
     def __repr__(self) -> str:
@@ -90,10 +89,6 @@ class Episode(db.Model):
 
     playlists: Mapped[List["Playlist"]] = relationship(
         "Playlist", secondary=playlist_episode, back_populates="episodes", lazy="dynamic"
-    )
-
-    __table_args__ = (
-        UniqueConstraint("title", "episode_number", "season_number", "show_title", name="_episode_uc"),
     )
 
     def __repr__(self) -> str:

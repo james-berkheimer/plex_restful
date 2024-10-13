@@ -1,7 +1,8 @@
+import logging
 import os
 from typing import Any, Dict, Optional
 
-from ..utils.logging import LOGGER
+logger = logging.getLogger("app_logger")
 
 
 class AuthenticationError(Exception):
@@ -17,34 +18,25 @@ class Authentication:
         plex_token = os.getenv("PLEX_TOKEN")
 
         if not plex_baseurl or not plex_token:
-            raise AuthenticationError(
-                "PLEX_BASEURL or PLEX_TOKEN environment variables not set"
-            )
+            raise AuthenticationError("PLEX_BASEURL or PLEX_TOKEN environment variables not set")
 
         return {"plex": {"baseurl": plex_baseurl, "token": plex_token}}
 
     @staticmethod
     def mask_auth_data(auth_data: Dict[str, Any]) -> Dict[str, Any]:
         masked_data = {
-            k: (v if "token" not in k and "key" not in k else "****")
-            for k, v in auth_data.items()
+            k: (v if "token" not in k and "key" not in k else "****") for k, v in auth_data.items()
         }
         return masked_data
 
     def log_auth_data(self) -> None:
         masked_data = self.mask_auth_data(self.auth_data["plex"])
-        LOGGER.debug(f"Authentication initialized with auth_data: {masked_data}")
+        logger.debug(f"Authentication initialized with auth_data: {masked_data}")
 
 
 class PlexAuthentication(Authentication):
-    def __init__(
-        self, baseurl: Optional[str] = None, token: Optional[str] = None
-    ) -> None:
-        auth_data = (
-            {"plex": {"baseurl": baseurl, "token": token}}
-            if baseurl and token
-            else None
-        )
+    def __init__(self, baseurl: Optional[str] = None, token: Optional[str] = None) -> None:
+        auth_data = {"plex": {"baseurl": baseurl, "token": token}} if baseurl and token else None
         super().__init__(auth_data)
         self.log_auth_data()
 

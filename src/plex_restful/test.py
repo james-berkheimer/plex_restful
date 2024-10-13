@@ -1,7 +1,7 @@
 from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.orm import sessionmaker
 
-from .api.database.models import Playlist
+from .database.models import Playlist
 
 db_path = "sqlite:///src/instance/plex_restful.db"
 # Create an engine and connect to the database

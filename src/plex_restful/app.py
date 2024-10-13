@@ -1,10 +1,11 @@
 from flask import Flask
 from flask_cors import CORS
 
-from .api.database import init_db
 from .api.endpoints import api_bp
-from .apps.default.routes import default_bp
-from .config import DBConfig
+from .apps.refresh.routes import main
+from .config import DBConfig, ServerConfig, SocketioConfig
+
+socketio = SocketioConfig.socketio
 
 
 def create_app():
@@ -12,13 +13,11 @@ def create_app():
     CORS(app)
     app.config.from_object(DBConfig)
 
-    # Initialize database
-    init_db(app)
-
-    # Register the blueprint with the app
-    app.register_blueprint(default_bp)
+    app.register_blueprint(main)
     app.register_blueprint(api_bp, url_prefix="/api")
     return app
 
 
 app = create_app()
+if __name__ == "__main__":
+    socketio.run(app, host=ServerConfig.HOST, port=ServerConfig.PORT, debug=ServerConfig.DEBUG)

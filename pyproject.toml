@@ -21,6 +21,7 @@ dependencies = [
     "flask_cors",
     "flask-migrate",
     "flask-restful",
+    "flask-socketio",
     "flask-sqlalchemy",
     "flask-wtf",
     "plexapi",
@@ -41,7 +42,7 @@ file = "README.md"
 content-type = "text/markdown"
 
 [project.scripts]
-pra = "plex_restful.main:main"
+cmd = "plex_restful.main:main"
 test1 = "plex_restful.test:test1"
 test2 = "plex_restful.test:test2"
 test3 = "plex_restful.test:test3"

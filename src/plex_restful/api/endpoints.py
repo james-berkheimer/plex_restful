@@ -29,24 +29,58 @@ def get_playlists():
     return jsonify(result)
 
 
-@api_bp.route("/playlists/<int:playlist_id>/tracks", methods=["GET"])
-def get_playlist_tracks(playlist_id):
+@api_bp.route("/playlists/<int:playlist_id>/items", methods=["GET"])
+def get_playlist_items(playlist_id):
     playlist = Playlist.query.get(playlist_id)
 
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
 
-    tracks_result = []
+    items_result = []
+
     for track in playlist.tracks:
-        tracks_result.append(
+        items_result.append(
             {
+                "type": "track",
                 "track_number": track.track_number,
                 "title": track.title,
                 "duration": track.duration,
             }
         )
 
-    return jsonify(tracks_result)
+    for episode in playlist.episodes:
+        items_result.append(
+            {
+                "type": "episode",
+                "episode_number": episode.episode_number,
+                "season_number": episode.season_number,
+                "title": episode.title,
+                "show_title": episode.show_title,
+                "duration": episode.duration,
+            }
+        )
+
+    for movie in playlist.movies:
+        items_result.append(
+            {
+                "type": "movie",
+                "title": movie.title,
+                "year": movie.year,
+                "duration": movie.duration,
+            }
+        )
+
+    for photo in playlist.photos:
+        items_result.append(
+            {
+                "type": "photo",
+                "title": photo.title,
+                "thumbnail": photo.thumbnail,
+                "file": photo.file,
+            }
+        )
+
+    return jsonify(items_result)
 
 
 @api_bp.route("/playlist_types", methods=["GET"])

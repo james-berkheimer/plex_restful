@@ -10,7 +10,6 @@ class DBConfig:
 
 
 class PlexConfig:
-    # CRED_PATH = "/home/james/code/plex_restful/tests/.plex_cred"
     CRED_PATH = os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "tests/.plex_cred/credentials.json"
     )
